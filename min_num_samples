@@ -1,0 +1,100 @@
+from ballpopsamplingdist import PopulationSamplingDistribution
+import numpy as np
+from os import system
+import matplotlib.pyplot as plt
+
+def get_second_order_distribution(N: int):
+    estimated_population = []
+    bmean                = []
+    pmean                = []
+    amean                = []
+    means                = []
+    stds                 = []
+
+    for i in range(40000):
+        dist = PopulationSamplingDistribution(N = pop)
+        for j in range(700):
+            dist.generate_distribution(100)
+        
+        estimated_population.append(dist.get_population_point_estimate())
+
+        mean = np.mean(dist.succ)
+        std  = np.std(dist.succ)
+
+        if mean >= 29 and mean <= 29.5:
+            bmean.append(std)
+        if mean >= 29.75 and mean <= 30.25:
+            pmean.append(std)
+        if mean >= 30.5 and mean <= 31:
+            amean.append(std)
+
+        means.append(mean)
+        stds.append(std)
+
+        if i % 1000 == 0:
+            print(f"{i} 2nd Order Distributions Created")
+    
+    bin_size = 100
+    hist, bins = np.histogram(estimated_population, bins=range(-40000,40000, bin_size))
+
+    return (estimated_population, means, stds, bmean, pmean, amean)
+
+pop = 10000
+system('clear')
+
+est, means, stds, bmean, pmean, amean = get_second_order_distribution(pop)
+figure, axis = plt.subplots(2, 3)
+
+print(f'b-n: {len(bmean)}')
+print(f'p-n: {len(pmean)}')
+print(f'a-n: {len(amean)}')
+
+print(f'b-mean: {np.mean(bmean)}')
+print(f'p-mean: {np.mean(pmean)}')
+print(f'a-mean: {np.mean(amean)}')
+
+print(f'b-std: {np.std(bmean)}')
+print(f'p-std: {np.std(pmean)}')
+print(f'a-std: {np.std(amean)}')
+
+axis[0,0].hist(est, range=(-40000,40000), bins=100)
+axis[0,0].set_title("Estimated Population")
+
+axis[0,1].hist(means, range=(28, 32), bins=100)
+axis[0,1].set_title("Means")
+
+axis[0,2].hist(stds, range=(4, 5), bins=100)
+axis[0,2].set_title("Standard Deviations")
+
+axis[1,0].hist(bmean, range=(4, 5), bins=100)
+axis[1,0].set_title("Below Means STD")
+
+axis[1,1].hist(pmean, range=(4, 5), bins=100)
+axis[1,1].set_title("Point Means STD")
+
+axis[1,2].hist(amean, range=(4, 5), bins=100)
+axis[1,2].set_title("Above Means STD")
+
+
+
+
+plt.show()
+
+# Gather datapoints
+
+'''for i in range(1, pop, 100):
+    x, y = get_second_order_distribution(N=i)
+
+    x, y = np.meshgrid(x, y, )'''   
+
+    
+
+
+# Calcualte frequency (y)
+
+
+
+'''
+plt.hist(estimated_population, bins=50, range=(-40000, 40000), density=True)
+plt.show()
+'''
