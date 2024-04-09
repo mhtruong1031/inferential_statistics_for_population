@@ -1,8 +1,16 @@
-from ballpopsamplingdist import PopulationSamplingDistribution
+from adjusted_prop_popsamplingdist import PopulationSamplingDistribution
 import numpy as np
+from math import sqrt
 from os import system
 import matplotlib.pyplot as plt
 
+# Returns population confidence interval
+def get_population_conf_int(p_estimate, std) -> tuple:
+    interval = 1.960 * (std/(sqrt(abs(p_estimate))))
+
+    return (p_estimate-interval, p_estimate+interval)
+
+# Return second order sampling distribution statistics
 def get_second_order_distribution(N: int):
     estimated_population = []
     bmean                = []
@@ -11,13 +19,17 @@ def get_second_order_distribution(N: int):
     means                = []
     stds                 = []
 
-    for i in range(40000):
+    in_intervals = 0
+    for i in range(1000):
         dist = PopulationSamplingDistribution(N = pop)
         for j in range(700):
-            dist.generate_distribution(100)
+            dist.generate_distribution(500)
         
-        estimated_population.append(dist.get_population_point_estimate())
-
+        p_estimate = dist.get_population_point_estimate()
+        interval   = dist.get_population_conf_int()
+        estimated_population.append(p_estimate)
+        if interval[0] <= p_estimate and p_estimate <= interval[1]:
+            in_intervals += 1
         mean = np.mean(dist.succ)
         std  = np.std(dist.succ)
 
@@ -34,16 +46,21 @@ def get_second_order_distribution(N: int):
         if i % 1000 == 0:
             print(f"{i} 2nd Order Distributions Created")
     
+    perc_conf = in_intervals / 1000
+    
     bin_size = 100
     hist, bins = np.histogram(estimated_population, bins=range(-40000,40000, bin_size))
 
-    return (estimated_population, means, stds, bmean, pmean, amean)
+    return (estimated_population, means, stds, bmean, pmean, amean, perc_conf)
 
-pop = 10000
+pop = 1000
 system('clear')
 
-est, means, stds, bmean, pmean, amean = get_second_order_distribution(pop)
+est, means, stds, bmean, pmean, amean, perc_conf = get_second_order_distribution(pop)
+
 figure, axis = plt.subplots(2, 3)
+
+print(est)
 
 print(f'b-n: {len(bmean)}')
 print(f'p-n: {len(pmean)}')
@@ -57,7 +74,12 @@ print(f'b-std: {np.std(bmean)}')
 print(f'p-std: {np.std(pmean)}')
 print(f'a-std: {np.std(amean)}')
 
-axis[0,0].hist(est, range=(-40000,40000), bins=100)
+print(f'mean est: {np.mean(est)}')
+print(f'std est: {np.std(est)}')
+print(f'conf-int: {get_population_conf_int(np.mean(est), np.std(est))}')
+print(f'percent in interval: {perc_conf}')
+
+axis[0,0].hist(est, range=(-20000,20000), bins=200)
 axis[0,0].set_title("Estimated Population")
 
 axis[0,1].hist(means, range=(28, 32), bins=100)
@@ -73,28 +95,6 @@ axis[1,1].hist(pmean, range=(4, 5), bins=100)
 axis[1,1].set_title("Point Means STD")
 
 axis[1,2].hist(amean, range=(4, 5), bins=100)
-axis[1,2].set_title("Above Means STD")
-
-
-
+axis[1,2].set_title("Above Means STD")  
 
 plt.show()
-
-# Gather datapoints
-
-'''for i in range(1, pop, 100):
-    x, y = get_second_order_distribution(N=i)
-
-    x, y = np.meshgrid(x, y, )'''   
-
-    
-
-
-# Calcualte frequency (y)
-
-
-
-'''
-plt.hist(estimated_population, bins=50, range=(-40000, 40000), density=True)
-plt.show()
-'''

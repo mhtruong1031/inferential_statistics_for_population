@@ -1,4 +1,5 @@
 from random import choice, randint
+from math import sqrt
 import numpy as np
 
 class PopulationSamplingDistribution():
@@ -36,6 +37,10 @@ class PopulationSamplingDistribution():
 
         return population
 
-    def get_population_conf_int(self, conf_level: float) -> tuple:
-        pass
+    def get_population_conf_int(self,) -> tuple:
+        p_estimate = self.get_population_point_estimate()
+        std  = np.std(self.succ)
 
+        interval = 0.842 * (std/(1/sqrt(abs(p_estimate))))
+
+        return (p_estimate-interval, p_estimate+interval)

@@ -3,6 +3,7 @@ import numpy as np
 from os import system
 import matplotlib.pyplot as plt
 
+# Return the minimum number of samples needed
 pop = 500
 system('clear')
 
@@ -23,7 +24,7 @@ for n in range(1, pop+1):
 
 plt.plot(ratios, min_sample_num)
 plt.xlabel("Ratio of sample size to population")
-plt.ylabel("Min Sample Size for 10% Error")
+plt.ylabel("Min numbers of samples for 10% Error")
 plt.show()
 
 print(f"mean: {np.mean(dist.props)}")
